@@ -101,6 +101,7 @@
   function start_slideshow(){
 		range = loaded_media.length;
 		target = Math.floor(Math.random()*(range));
+		console.log(target);
 		div_width = $('#response').width();
 		div_height = $('#response').height();
 		target_url = loaded_media[target].baseUrl + '=w'+div_width+'-h'+div_height;
@@ -110,11 +111,11 @@
 			$('#response').fadeOut('slow').promise().done(function(){
 				$('#response').html(img);
 				$('#response').fadeIn('slow');
+				setTimeout(start_slideshow, 20000);
+				console.log('timer started');
 			});
 		}
 		img.src = target_url;
-		setTimeout(start_slideshow, 20000);
-		console.log('timer started');
   }
 </script>
 

@@ -1,0 +1,172 @@
+<script>
+  var GoogleAuth;
+  var SCOPE = 'https://www.googleapis.com/auth/photoslibrary.readonly';
+  var loaded_media = [];
+  function handleClientLoad() {
+    // Load the API's client and auth2 modules.
+    // Call the initClient function after the modules load.
+    gapi.load('client:auth2', initClient);
+  }
+
+  function initClient() {
+    // Retrieve the discovery document for version 3 of Google Drive API.
+    // In practice, your app can retrieve one or more discovery documents.
+    var discoveryUrl = 'https://content.googleapis.com/discovery/v1/apis/photoslibrary/v1/rest';
+
+    // Initialize the gapi.client object, which app uses to make API requests.
+    // Get API key and client ID from API Console.
+    // 'scope' field specifies space-delimited list of access scopes.
+    gapi.client.init({
+        'apiKey': 'AIzaSyBGFwsL95GCWOde3J8MDh7rAPKUzAU1Ajg',
+        'discoveryDocs': [discoveryUrl],
+        'clientId': '349461614640-jmsagt2p3cg9as407snsd0r17qo7e2hg.apps.googleusercontent.com',
+        'scope': SCOPE
+    }).then(function () {
+      GoogleAuth = gapi.auth2.getAuthInstance();
+
+      // Listen for sign-in state changes.
+      GoogleAuth.isSignedIn.listen(updateSigninStatus);
+
+      // Handle initial sign-in state. (Determine if user is already signed in.)
+      var user = GoogleAuth.currentUser.get();
+      setSigninStatus();
+
+      // Call handleAuthClick function when user clicks on
+      //      "Sign In/Authorize" button.
+      $('#sign-in-or-out-button').click(function() {
+        handleAuthClick();
+      }); 
+      $('#revoke-access-button').click(function() {
+        revokeAccess();
+      }); 
+	  $('#execute').click(function() {
+        execute();
+      }); 
+    });
+  }
+
+  function handleAuthClick() {
+    if (GoogleAuth.isSignedIn.get()) {
+      // User is authorized and has clicked 'Sign out' button.
+      GoogleAuth.signOut();
+    } else {
+      // User is not signed in. Start Google auth flow.
+      GoogleAuth.signIn();
+    }
+  }
+
+  function revokeAccess() {
+    GoogleAuth.disconnect();
+  }
+
+  function setSigninStatus(isSignedIn) {
+    var user = GoogleAuth.currentUser.get();
+    var isAuthorized = user.hasGrantedScopes(SCOPE);
+    if (isAuthorized) {
+      $('#sign-in-or-out-button').html('Sign out');
+      $('#revoke-access-button').css('display', 'inline-block');
+      $('#execute').css('display', 'inline-block');
+      $('#auth-status').html('You are currently signed in and have granted ' +
+          'access to this app.');
+    } else {
+      $('#sign-in-or-out-button').html('Sign In/Authorize');
+      $('#revoke-access-button').css('display', 'none');
+      $('#execute').css('display', 'none');
+      $('#auth-status').html('You have not authorized this app or you are ' +
+          'signed out.');
+    }
+  }
+
+  function updateSigninStatus(isSignedIn) {
+    setSigninStatus();
+  }
+  
+  function execute() {
+    return gapi.client.photoslibrary.mediaItems.search({
+      "resource": {
+        "pageSize": 500
+      }
+    })
+        .then(function(response) {
+                // Handle the results here (response.result has the parsed body).
+				json_response = response.result;
+				console.log('items loaded');
+				loaded_media = loaded_media.concat(json_response.mediaItems);
+				$('#header').css('display', 'none');
+				start_slideshow();
+              },
+              function(err) { console.error("Execute error", err); });
+  }
+  
+  function start_slideshow(){
+		range = loaded_media.length;
+		target = Math.floor(Math.random()*(range));
+		div_width = $('#response').width();
+		div_height = $('#response').height();
+		target_url = loaded_media[target].baseUrl + '=w'+div_width+'-h'+div_height;
+		img = new Image();
+		img.id = 'display_image';
+		img.onload = function(){
+			$('#response').fadeOut('slow').promise().done(function(){
+				$('#response').html(img);
+				$('#response').fadeIn('slow');
+			});
+		}
+		img.src = target_url;
+		setTimeout(start_slideshow, 20000);
+		console.log('timer started');
+  }
+</script>
+
+<style>
+	body{
+		height: 100%;
+		background-color: black;
+		margin: 0;
+		color: white;
+	}
+	.box{
+		display: flex;
+		flex-flow: column;
+		height: 100%;
+	}
+	.box .header{
+		width: 100%;
+		flex: 0 1 auto;
+	}
+	.box .content{
+		width: 100%;
+		height: 100%;
+		flex: 1 1 auto;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	#display_image{
+		margin:auto;
+	}
+</style>
+<body>
+	<div class="box">
+		<div class="header" id="header">
+		<button id="sign-in-or-out-button"
+				style="margin-left: 25px">Sign In/Authorize</button>
+		<button id="revoke-access-button"
+				style="display: none; margin-left: 25px">Revoke access</button>
+		<button id="execute"
+				style="display: none; margin-left: 25px">Execute</button>
+
+		<div id="auth-status" style="display: inline; padding-left: 25px"></div>
+		<hr>
+		</div>
+		<div class="content" id="response">
+		</div>
+	</div>
+
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script async defer src="https://apis.google.com/js/api.js" 
+			onload="this.onload=function(){};handleClientLoad()" 
+			onreadystatechange="if (this.readyState === 'complete') this.onload()">
+	</script>
+</body>

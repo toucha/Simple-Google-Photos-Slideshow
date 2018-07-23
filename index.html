@@ -81,31 +81,69 @@
     setSigninStatus();
   }
   
+  //after initial query has been executed, call next page to populate the list on the background
   function execute() {
-    return gapi.client.photoslibrary.mediaItems.search({
-      "resource": {
-        "pageSize": 500
-      }
-    })
+    return get_photos()
         .then(function(response) {
                 // Handle the results here (response.result has the parsed body).
-				json_response = response.result;
-				console.log('items loaded');
-				loaded_media = loaded_media.concat(json_response.mediaItems);
-				$('#header').css('display', 'none');
-				start_slideshow();
+      				var json_response = response.result;
+      				console.log('items loaded');
+              var processed_result = json_response.mediaItems.map(a => a.baseUrl);
+      				loaded_media = loaded_media.concat(processed_result);
+      				$('#header').css('display', 'none');
+      				start_slideshow();
+              console.log(response.result.nextPageToken);
+              background_load(response.result.nextPageToken);
+              //setTimeout(execute, 3000000);
               },
               function(err) { console.error("Execute error", err); });
   }
   
+  //load photo of the next page, appending to the array and repeat until it reaches the last page
+  function background_load(nextPageToken){
+    if(typeof nextPageToken != "undefined"){
+      var pageToken;
+      get_photos(nextPageToken)
+      .then(function(response){
+        var json_response = response.result;
+        console.log('background_load loaded');
+        var processed_result = json_response.mediaItems.map(a => a.baseUrl);
+        loaded_media = loaded_media.concat(processed_result);
+        pageToken = response.result.nextPageToken;
+      },
+      function(err) { console.error("background_load error", err); })
+      .then(function(){
+        console.log('background_load appended, recurring the function again');
+        console.log('pageToken : ' + pageToken);
+        background_load(pageToken);
+      });
+    }
+    else{
+      console.log('all photos are loaded');
+    }
+  }
+
+  function get_photos(page = ""){
+    console.log('get_photos page : ' + page);
+      return gapi.client.photoslibrary.mediaItems.search({
+      "resource": {
+        "pageSize": 500,
+        "pageToken": page
+      }
+    });
+  }
+
+  //TODO: reset photo list every 50 minutes since Google Photo API results expire every 60 minutes
+  //TODO: spliced array from randomized pictures to remove repeating picture during the slideshow
+  //TODO: if all photos run out before re-populating time, switch the used array back to unused array 
   function start_slideshow(){
-		range = loaded_media.length;
-		target = Math.floor(Math.random()*(range));
+		var range = loaded_media.length;
+		var target = Math.floor(Math.random()*(range));
 		console.log(target);
-		div_width = $('#response').width();
-		div_height = $('#response').height();
-		target_url = loaded_media[target].baseUrl + '=w'+div_width+'-h'+div_height;
-		img = new Image();
+		var div_width = $('#response').width();
+		var div_height = $('#response').height();
+		var target_url = loaded_media[target] + '=w'+div_width+'-h'+div_height;
+		var img = new Image();
 		img.id = 'display_image';
 		img.onload = function(){
 			$('#response').fadeOut('slow').promise().done(function(){
@@ -161,6 +199,7 @@
 		<hr>
 		</div>
 		<div class="content" id="response">
+    <!-- add hover navigation bar to change to next picture or stop slideshow -->
 		</div>
 	</div>
 

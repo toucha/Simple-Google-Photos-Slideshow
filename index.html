@@ -2,6 +2,8 @@
   var GoogleAuth;
   var SCOPE = 'https://www.googleapis.com/auth/photoslibrary.readonly';
   var loaded_media = [];
+  var current_timout;
+  var current_flag = 0;
   function handleClientLoad() {
     // Load the API's client and auth2 modules.
     // Call the initClient function after the modules load.
@@ -87,39 +89,49 @@
         .then(function(response) {
                 // Handle the results here (response.result has the parsed body).
       				var json_response = response.result;
-      				console.log('items loaded');
               var processed_result = json_response.mediaItems.map(a => a.baseUrl);
       				loaded_media = loaded_media.concat(processed_result);
+              console.log('items loaded current size ' + loaded_media.length);
       				$('#header').css('display', 'none');
       				start_slideshow();
-              console.log(response.result.nextPageToken);
-              background_load(response.result.nextPageToken);
-              //setTimeout(execute, 3000000);
+              //console.log(response.result.nextPageToken);
+              background_load(response.result.nextPageToken, current_flag);
+              setTimeout(refresh_list, 3000000);
+              // setTimeout(refresh_list, 60000);
               },
               function(err) { console.error("Execute error", err); });
   }
   
   //load photo of the next page, appending to the array and repeat until it reaches the last page
-  function background_load(nextPageToken){
-    if(typeof nextPageToken != "undefined"){
+  function background_load(nextPageToken, watch_flag){
+    if(typeof nextPageToken != "undefined" && watch_flag == current_flag){
       var pageToken;
       get_photos(nextPageToken)
       .then(function(response){
         var json_response = response.result;
-        console.log('background_load loaded');
+        // console.log('background_load loaded');
         var processed_result = json_response.mediaItems.map(a => a.baseUrl);
-        loaded_media = loaded_media.concat(processed_result);
-        pageToken = response.result.nextPageToken;
+        if(watch_flag == current_flag){
+          loaded_media = loaded_media.concat(processed_result);
+          console.log('items loaded from background, current size ' + loaded_media.length);
+          pageToken = response.result.nextPageToken;
+        }else{
+          throw 'backgroun_load of flag ' + watch_flag + ' stopped. Current flag is ' + current_flag;
+        }
       },
       function(err) { console.error("background_load error", err); })
       .then(function(){
-        console.log('background_load appended, recurring the function again');
-        console.log('pageToken : ' + pageToken);
-        background_load(pageToken);
+        // console.log('background_load appended, recurring the function again');
+        // console.log('pageToken : ' + pageToken);
+        background_load(pageToken, watch_flag);
       });
     }
     else{
-      console.log('all photos are loaded');
+      if(watch_flag != current_flag){
+        console.log('backgroun_load of flag ' + watch_flag + ' stopped. Current flag is ' + current_flag);
+      }else{
+        console.log('all photos are loaded');
+      }
     }
   }
 
@@ -149,11 +161,21 @@
 			$('#response').fadeOut('slow').promise().done(function(){
 				$('#response').html(img);
 				$('#response').fadeIn('slow');
-				setTimeout(start_slideshow, 20000);
-				console.log('timer started');
+				current_timeout = setTimeout(start_slideshow, 20000);
+				// console.log('timer started');
 			});
 		}
 		img.src = target_url;
+  }
+
+  function refresh_list(){
+    console.log('start refreshing photo list');
+    //stop slideshow timer to refresh the photo list first if there is any
+    clearTimeout(current_timeout);
+    console.log('timeout cleared');
+    console.log('current flag is ' + current_flag + ' switch flag to ' + (current_flag = current_flag==0?1:0));
+    loaded_media = [];
+    execute();
   }
 </script>
 

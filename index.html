@@ -70,17 +70,24 @@
       $('#sign-in-or-out-button').html('Sign out');
       $('#revoke-access-button').css('display', 'inline-block');
       // $('#execute').css('display', 'inline-block');
-      $('#play-button').removeClass('play-button-hide');
+      $('#play-button').removeClass('nav-button-hide');
       $('#auth-status').html('You are currently signed in and have granted ' +
           'access to this app.');
     } else {
       $('#sign-in-or-out-button').html('Sign In/Authorize');
       $('#revoke-access-button').css('display', 'none');
       // $('#execute').css('display', 'none');
-      $('#play-button').addClass('play-button-hide');
+      hideAllNavButtons();
       $('#auth-status').html('You have not authorized this app or you are ' +
           'signed out.');
     }
+  }
+
+  function hideAllNavButtons(){
+    $('#play-button').addClass('nav-button-hide')
+    $('#stop-button').addClass('nav-button-hide')
+    $('#pause-button').addClass('nav-button-hide')
+    $('#next-button').addClass('nav-button-hide')
   }
 
   function updateSigninStatus(isSignedIn) {
@@ -200,6 +207,12 @@
     //detect current state to play correctly
     var previous_state = slideshow_state;
     slideshow_state = 'play';
+    //hide play button
+    $('#play-button').addClass('nav-button-hide');
+    //display navigation buttons
+    $('#pause-button').removeClass('nav-button-hide');
+    $('#stop-button').removeClass('nav-button-hide');
+    $('#next-button').removeClass('nav-button-hide');
     //from pause call start_slideshow
     if(previous_state == 'pause'){
       console.log('play from pause');
@@ -221,12 +234,20 @@
     current_flag = current_flag==0?1:0;
     //clear photo list
     loaded_media = [];
+    //hide all nav button
+    hideAllNavButtons();
+    //display play button
+    $('#play-button').removeClass('nav-button-hide');
     console.log('slideshow stopped');
   }
 
   function pause(){
     //prevent pausing from stop
     if(slideshow_state != 'stop'){
+      //hide pause button
+      $('#pause-button').addClass('nav-button-hide');
+      //display play
+      $('#play-button').removeClass('nav-button-hide');
       //change state to pause
       slideshow_state = 'pause';
       //kill slideshow timer
@@ -312,22 +333,7 @@
 		justify-content: center;
   }
   /*default state of the navigation buttons */
-  .play-button-hide{
-    /* default display value */
-    /* display: inline-block; */
-    display: none !important;
-  }
-  .pause-button-hide{
-    /* default display value */
-    /* display: inline-block; */
-    display: none !important;
-  }
-  .stop-button-hide{
-    /* default display value */
-    /* display: inline-block; */
-    display: none !important;
-  }
-  .next-button-hide{
+  .nav-button-hide{
     /* default display value */
     /* display: inline-block; */
     display: none !important;
@@ -356,10 +362,10 @@
       </div>
       <div class="nav_detect">
         <div class="nav_tab">
-          <i class="fas fa-play-circle fa-3x nav-action-button play-button-hide" onclick="play()" id="play-button"></i>
-          <i class="fas fa-pause-circle fa-3x nav-action-button pause-button-hide" onclick="pause()" id="pause-button"></i>
-          <i class="fas fa-chevron-circle-right fa-3x nav-action-button next-button-hide" onclick="next_photo()" id="next-button"></i>
-          <i class="fas fa-stop-circle fa-3x nav-action-button stop-button-hide" onclick="stop()" id="stop-button"></i>
+          <i class="fas fa-play-circle fa-3x nav-action-button nav-button-hide" onclick="play()" id="play-button"></i>
+          <i class="fas fa-pause-circle fa-3x nav-action-button nav-button-hide" onclick="pause()" id="pause-button"></i>
+          <i class="fas fa-chevron-circle-right fa-3x nav-action-button nav-button-hide" onclick="next_photo()" id="next-button"></i>
+          <i class="fas fa-stop-circle fa-3x nav-action-button nav-button-hide" onclick="stop()" id="stop-button"></i>
         </div>
       </div>
 		</div>

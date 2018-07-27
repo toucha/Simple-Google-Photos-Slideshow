@@ -22,6 +22,10 @@
         $('#photoframe').click();
       }
     });
+    $('#nav_tab').click(function(){
+      clearTimeout(hide_nav);
+      hide_nav = setTimeout(hideNavTab, 3500);
+    })
     // displayNavTab();
     $('#photoframe').click();
   });

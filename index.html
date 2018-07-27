@@ -14,10 +14,13 @@
       toggleNavTab();
       hide_nav = setTimeout(hideNavTab, 3500);
     });
-    $('#nav_detect').hover(function(){
-      clearTimeout(hide_nav);
-      toggleNavTab();
-      hide_nav = setTimeout(hideNavTab, 3500);
+    // $('#nav_detect').mouseleave(function(){
+    //   $('#nav_tab').removeAttr('style');
+    // })
+    $('#response').mousemove(function(){
+      if($('#nav_tab').css('visibility') == 'hidden'){
+        $('#response').click();
+      }
     })
     $('#response').click();
   });

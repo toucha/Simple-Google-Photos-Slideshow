@@ -2,8 +2,9 @@
   var GoogleAuth;
   var SCOPE = 'https://www.googleapis.com/auth/photoslibrary.readonly';
   var loaded_media = [];
-  var current_timout;
+  var current_timeout;
   var current_flag = 0;
+  var slideshow_state = 'stop';
   function handleClientLoad() {
     // Load the API's client and auth2 modules.
     // Call the initClient function after the modules load.
@@ -42,7 +43,8 @@
         revokeAccess();
       }); 
 	  $('#execute').click(function() {
-        execute();
+        play();
+        // execute();
       }); 
     });
   }
@@ -50,10 +52,10 @@
   function handleAuthClick() {
     if (GoogleAuth.isSignedIn.get()) {
       // User is authorized and has clicked 'Sign out' button.
-      GoogleAuth.signOut();
+      GoogleAuth.signOut().then(function(){ console.log('sign out successful');});
     } else {
       // User is not signed in. Start Google auth flow.
-      GoogleAuth.signIn();
+      GoogleAuth.signIn().then(function(){ console.log('sign in successful');});
     }
   }
 
@@ -67,19 +69,22 @@
     if (isAuthorized) {
       $('#sign-in-or-out-button').html('Sign out');
       $('#revoke-access-button').css('display', 'inline-block');
-      $('#execute').css('display', 'inline-block');
+      // $('#execute').css('display', 'inline-block');
+      $('#play-button').removeClass('play-button-hide');
       $('#auth-status').html('You are currently signed in and have granted ' +
           'access to this app.');
     } else {
       $('#sign-in-or-out-button').html('Sign In/Authorize');
       $('#revoke-access-button').css('display', 'none');
-      $('#execute').css('display', 'none');
+      // $('#execute').css('display', 'none');
+      $('#play-button').addClass('play-button-hide');
       $('#auth-status').html('You have not authorized this app or you are ' +
           'signed out.');
     }
   }
 
   function updateSigninStatus(isSignedIn) {
+    console.log('signin status changed');
     setSigninStatus();
   }
   
@@ -161,7 +166,9 @@
 			$('#photoframe').fadeOut('slow').promise().done(function(){
 				$('#photoframe').html(img);
 				$('#photoframe').fadeIn('slow');
-				current_timeout = setTimeout(start_slideshow, 20000);
+        if(slideshow_state == 'play'){
+				  current_timeout = setTimeout(start_slideshow, 20000);
+        }
 				// console.log('timer started');
 			});
 		}
@@ -179,11 +186,53 @@
   }
 
   function next_photo(){
-    console.log('displaying next photo');
-    //kill current_timeout and re trigger start_slideshow
+    //prevent displaying next photo from stop
+    if(slideshow_state != 'stop'){
+      console.log('displaying next photo');
+      //kill current_timeout and re trigger start_slideshow
+      clearTimeout(current_timeout);
+      console.log('timeout cleared');
+      start_slideshow();
+    }
+  }
+
+  function play(){
+    //detect current state to play correctly
+    var previous_state = slideshow_state;
+    slideshow_state = 'play';
+    //from pause call start_slideshow
+    if(previous_state == 'pause'){
+      console.log('play from pause');
+      start_slideshow();
+    }
+    //from stop call execute
+    else if(previous_state == 'stop'){
+      console.log('play from stop');
+      execute();
+    }
+  }
+
+  function stop(){
+    //change state to stop
+    slideshow_state = 'stop';
+    //kill slideshow timer
     clearTimeout(current_timeout);
-    console.log('timeout cleared');
-    start_slideshow();
+    //switch flag
+    current_flag = current_flag==0?1:0;
+    //clear photo list
+    loaded_media = [];
+    console.log('slideshow stopped');
+  }
+
+  function pause(){
+    //prevent pausing from stop
+    if(slideshow_state != 'stop'){
+      //change state to pause
+      slideshow_state = 'pause';
+      //kill slideshow timer
+      clearTimeout(current_timeout);
+      console.log('slideshow paused');
+    }
   }
 </script>
 
@@ -262,6 +311,27 @@
 		align-items: center;
 		justify-content: center;
   }
+  /*default state of the navigation buttons */
+  .play-button-hide{
+    /* default display value */
+    /* display: inline-block; */
+    display: none !important;
+  }
+  .pause-button-hide{
+    /* default display value */
+    /* display: inline-block; */
+    display: none !important;
+  }
+  .stop-button-hide{
+    /* default display value */
+    /* display: inline-block; */
+    display: none !important;
+  }
+  .next-button-hide{
+    /* default display value */
+    /* display: inline-block; */
+    display: none !important;
+  }
 </style>
 <head>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
@@ -286,9 +356,10 @@
       </div>
       <div class="nav_detect">
         <div class="nav_tab">
-          <i class="fas fa-play-circle fa-3x nav-action-button play-button"></i>
-          <i class="fas fa-pause-circle fa-3x nav-action-button pause-button"></i>
-          <i class="fas fa-chevron-circle-right fa-3x nav-action-button next-button" onclick="next_photo()"></i>
+          <i class="fas fa-play-circle fa-3x nav-action-button play-button-hide" onclick="play()" id="play-button"></i>
+          <i class="fas fa-pause-circle fa-3x nav-action-button pause-button-hide" onclick="pause()" id="pause-button"></i>
+          <i class="fas fa-chevron-circle-right fa-3x nav-action-button next-button-hide" onclick="next_photo()" id="next-button"></i>
+          <i class="fas fa-stop-circle fa-3x nav-action-button stop-button-hide" onclick="stop()" id="stop-button"></i>
         </div>
       </div>
 		</div>

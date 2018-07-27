@@ -14,7 +14,7 @@
       toggleNavTab();
       hide_nav = setTimeout(hideNavTab, 3500);
     });
-    $('#nav_detect').click(function(){
+    $('#nav_detect').hover(function(){
       clearTimeout(hide_nav);
       toggleNavTab();
       hide_nav = setTimeout(hideNavTab, 3500);
@@ -363,10 +363,10 @@
     position: absolute;
     bottom: 10;
   }
-  .nav_detect:hover .nav_tab{
+  /* .nav_detect:hover .nav_tab{
     visibility:visible;
     opacity: 1;
-  }
+  } */
   .nav_detect .nav_tab{
     background-color: rgba(105,105,105, 0.7);
     padding: 15 15 15 15;

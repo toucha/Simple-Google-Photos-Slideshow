@@ -9,19 +9,21 @@
   var hide_nav;
 
   $(function(){
-    $('#response').on('click', ':not(#nav_tab)', (function(){
+    $('#photoframe').on('click', (function(){
       console.log('clicked');
       displayNavTab();
     }));
     // $('#nav_detect').mouseleave(function(){
     //   $('#nav_tab').removeAttr('style');
     // })
-    $('#response').mousemove(function(){
+    $('#photoframe').mousemove(function(){
       if($('#nav_tab').css('visibility') == 'hidden'){
-        displayNavTab();
+        // displayNavTab();
+        $('#photoframe').click();
       }
     });
-    displayNavTab();
+    // displayNavTab();
+    $('#photoframe').click();
   });
 
   function displayNavTab(){

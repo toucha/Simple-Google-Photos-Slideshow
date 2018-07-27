@@ -88,7 +88,6 @@
     $('#stop-button').addClass('nav-button-hide');
     $('#pause-button').addClass('nav-button-hide');
     $('#next-button').addClass('nav-button-hide');
-    $('#fullscreen-button').addClass('nav-button-hide');
   }
 
   function updateSigninStatus(isSignedIn) {
@@ -214,7 +213,6 @@
     $('#pause-button').removeClass('nav-button-hide');
     $('#stop-button').removeClass('nav-button-hide');
     $('#next-button').removeClass('nav-button-hide');
-    $('#fullscreen-button').removeClass('nav-button-hide');
     //from pause call start_slideshow
     if(previous_state == 'pause'){
       console.log('play from pause');
@@ -398,7 +396,7 @@
           <i class="fas fa-pause-circle fa-5x nav-action-button nav-button-hide" onclick="pause()" id="pause-button"></i>
           <i class="fas fa-chevron-circle-right fa-5x nav-action-button nav-button-hide" onclick="next_photo()" id="next-button"></i>
           <i class="fas fa-stop-circle fa-5x nav-action-button nav-button-hide" onclick="stop()" id="stop-button"></i>
-          <i class="fas fa-plus-circle fa-5x nav-action-button nav-button-fullscreen" onclick="fullscreen()" id="fullscreen-button"></i>
+          <i class="fas fa-plus-circle fa-5x nav-action-button" onclick="fullscreen()" id="fullscreen-button"></i>
         </div>
       </div>
 		</div>

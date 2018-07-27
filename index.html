@@ -232,17 +232,26 @@
   .nav_detect:hover .nav_tab{
     display: inline;
   }
-  .nav_detect .nav_tab{
-    display:none;
+  @media (max-width : 1024px){
+    .nav_detect .nav_tab{
+      display:inline;
+    }
   }
-  .next_button{
+  @media (min-width: 1024px){
+    .nav_detect .nav_tab{
+      display:none;
+    }
+  }
+  .nav-action-button{
     opacity: 0.5;
+    padding-left: 5;
+    padding-right: 5;
   }
-  .next_button:hover{
+  .nav-action-button:hover{
     opacity: 0.8;
     cursor: pointer;
   }
-  .next_button:active{
+  .nav-action-button:active{
     opacity: 1;
   }
   .content .photoframe{
@@ -277,8 +286,9 @@
       </div>
       <div class="nav_detect">
         <div class="nav_tab">
-            <i class="fas fa-chevron-circle-right fa-3x next_button" onclick="next_photo()"></i>
-          
+          <i class="fas fa-play-circle fa-3x nav-action-button play-button"></i>
+          <i class="fas fa-pause-circle fa-3x nav-action-button pause-button"></i>
+          <i class="fas fa-chevron-circle-right fa-3x nav-action-button next-button" onclick="next_photo()"></i>
         </div>
       </div>
 		</div>

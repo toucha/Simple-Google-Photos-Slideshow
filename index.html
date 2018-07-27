@@ -152,15 +152,15 @@
 		var range = loaded_media.length;
 		var target = Math.floor(Math.random()*(range));
 		console.log(target);
-		var div_width = $('#response').width();
-		var div_height = $('#response').height();
+		var div_width = $('#photoframe').width();
+		var div_height = $('#photoframe').height();
 		var target_url = loaded_media[target] + '=w'+div_width+'-h'+div_height;
 		var img = new Image();
 		img.id = 'display_image';
 		img.onload = function(){
-			$('#response').fadeOut('slow').promise().done(function(){
-				$('#response').html(img);
-				$('#response').fadeIn('slow');
+			$('#photoframe').fadeOut('slow').promise().done(function(){
+				$('#photoframe').html(img);
+				$('#photoframe').fadeIn('slow');
 				current_timeout = setTimeout(start_slideshow, 20000);
 				// console.log('timer started');
 			});
@@ -176,6 +176,14 @@
     console.log('current flag is ' + current_flag + ' switch flag to ' + (current_flag = current_flag==0?1:0));
     loaded_media = [];
     execute();
+  }
+
+  function next_photo(){
+    console.log('displaying next photo');
+    //kill current_timeout and re trigger start_slideshow
+    clearTimeout(current_timeout);
+    console.log('timeout cleared');
+    start_slideshow();
   }
 </script>
 
@@ -198,15 +206,57 @@
 	.box .content{
 		width: 100%;
 		height: 100%;
-		flex: 1 1 auto;
+		/* flex: 1 1 auto;
 		display: flex;
 		align-items: center;
-		justify-content: center;
+		justify-content: center; */
 	}
 	#display_image{
 		margin:auto;
 	}
+  .nav_detect{
+    position: absolute;
+    bottom: 0;
+    height: 50%;
+    width: 100%;
+		flex: 1 1 auto;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+    z-index: 99;
+  }
+  .nav_tab{
+    position: absolute;
+    bottom: 10;
+  }
+  .nav_detect:hover .nav_tab{
+    display: inline;
+  }
+  .nav_detect .nav_tab{
+    display:none;
+  }
+  .next_button{
+    opacity: 0.5;
+  }
+  .next_button:hover{
+    opacity: 0.8;
+    cursor: pointer;
+  }
+  .next_button:active{
+    opacity: 1;
+  }
+  .content .photoframe{
+		width: 100%;
+		height: 100%;
+		flex: 1 1 auto;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+  }
 </style>
+<head>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+</head>
 <body>
 	<div class="box">
 		<div class="header" id="header">
@@ -222,11 +272,20 @@
 		</div>
 		<div class="content" id="response">
     <!-- add hover navigation bar to change to next picture or stop slideshow -->
+      <div class="photoframe" id="photoframe">
+        <!--img tag here-->
+      </div>
+      <div class="nav_detect">
+        <div class="nav_tab">
+            <i class="fas fa-chevron-circle-right fa-3x next_button" onclick="next_photo()"></i>
+          
+        </div>
+      </div>
 		</div>
 	</div>
 
 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 	<script async defer src="https://apis.google.com/js/api.js" 
 			onload="this.onload=function(){};handleClientLoad()" 
 			onreadystatechange="if (this.readyState === 'complete') this.onload()">

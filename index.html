@@ -1,3 +1,8 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script async defer src="https://apis.google.com/js/api.js" 
+    onload="this.onload=function(){};handleClientLoad()" 
+    onreadystatechange="if (this.readyState === 'complete') this.onload()">
+</script>
 <script>
   var GoogleAuth;
   var SCOPE = 'https://www.googleapis.com/auth/photoslibrary.readonly';
@@ -5,6 +10,33 @@
   var current_timeout;
   var current_flag = 0;
   var slideshow_state = 'stop';
+  var hide_nav;
+
+  $(function(){
+    $('#response').click(function(){
+      clearTimeout(hide_nav);
+      toggleNavTab();
+      hide_nav = setTimeout(hideNavTab, 3500);
+    })
+  });
+
+  function hideNavTab(){
+    console.log('hideNavTab triggered');
+    if($('#nav_tab').css('visibility') != 'hidden'){
+      toggleNavTab();
+    }
+  }
+
+  function toggleNavTab(){
+    var nav_tab = $('#nav_tab');
+    if(nav_tab.css('visibility') == 'hidden'){
+      nav_tab.css('visibility', 'visible');
+      nav_tab.css('opacity', '1');
+    }else{
+      nav_tab.removeAttr('style');
+    }
+  }
+
   function handleClientLoad() {
     // Load the API's client and auth2 modules.
     // Call the initClient function after the modules load.
@@ -330,7 +362,8 @@
     bottom: 10;
   }
   .nav_detect:hover .nav_tab{
-    display: inline;
+    visibility:visible;
+    opacity: 1;
   }
   .nav_detect .nav_tab{
     background-color: rgba(105,105,105, 0.7);
@@ -338,12 +371,16 @@
   }
   @media (max-width : 1024px){
     .nav_detect .nav_tab{
-      display:inline;
+      /* display:inline; */
+      visibility:visible;
     }
   }
   @media (min-width: 1024px){
     .nav_detect .nav_tab{
-      display:none;
+      /* display:none; */
+      visibility:hidden;
+      opacity: 0;
+      transition:visibility 0.3s linear,opacity 0.3s linear;
     }
   }
   .nav-action-button{
@@ -395,7 +432,7 @@
         <!--img tag here-->
       </div>
       <div class="nav_detect">
-        <div class="nav_tab">
+        <div class="nav_tab" id="nav_tab">
           <i class="fas fa-play-circle fa-3x nav-action-button nav-button-hide" onclick="play()" id="play-button"></i>
           <i class="fas fa-pause-circle fa-3x nav-action-button nav-button-hide" onclick="pause()" id="pause-button"></i>
           <i class="fas fa-chevron-circle-right fa-3x nav-action-button nav-button-hide" onclick="next_photo()" id="next-button"></i>
@@ -405,11 +442,4 @@
       </div>
 		</div>
 	</div>
-
-
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-	<script async defer src="https://apis.google.com/js/api.js" 
-			onload="this.onload=function(){};handleClientLoad()" 
-			onreadystatechange="if (this.readyState === 'complete') this.onload()">
-	</script>
 </body>

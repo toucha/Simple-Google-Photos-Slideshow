@@ -9,21 +9,26 @@
   var hide_nav;
 
   $(function(){
-    $('#response').click(function(){
-      clearTimeout(hide_nav);
-      toggleNavTab();
-      hide_nav = setTimeout(hideNavTab, 3500);
-    });
+    $('#response').on('click', ':not(#nav_tab)', (function(){
+      console.log('clicked');
+      displayNavTab();
+    }));
     // $('#nav_detect').mouseleave(function(){
     //   $('#nav_tab').removeAttr('style');
     // })
     $('#response').mousemove(function(){
       if($('#nav_tab').css('visibility') == 'hidden'){
-        $('#response').click();
+        displayNavTab();
       }
-    })
-    $('#response').click();
+    });
+    displayNavTab();
   });
+
+  function displayNavTab(){
+    clearTimeout(hide_nav);
+    toggleNavTab();
+    hide_nav = setTimeout(hideNavTab, 3500);
+  }
 
   function hideNavTab(){
     console.log('hideNavTab triggered');
@@ -343,10 +348,10 @@
 	.box .content{
 		width: 100%;
 		height: 100%;
-		/* flex: 1 1 auto;
+		flex: 1 1 auto;
 		display: flex;
 		align-items: center;
-		justify-content: center; */
+		justify-content: center;
 	}
 	#display_image{
 		margin:auto;
@@ -365,12 +370,13 @@
   .nav_tab{
     position: absolute;
     bottom: 10;
+    z-index: 99;
   }
   /* .nav_detect:hover .nav_tab{
     visibility:visible;
     opacity: 1;
   } */
-  .nav_detect .nav_tab{
+  .nav_tab{
     background-color: rgba(105,105,105, 0.7);
     padding: 15 15 15 15;
   }
@@ -386,7 +392,7 @@
       transition:visibility 0.3s linear,opacity 0.3s linear;
     }
   } */
-  .nav_detect .nav_tab{
+  .nav_tab{
       /* display:none; */
       visibility:hidden;
       opacity: 0;
@@ -444,15 +450,13 @@
       <div class="photoframe" id="photoframe">
         <!--img tag here-->
       </div>
-      <div class="nav_detect" id="nav_detect">
-        <div class="nav_tab" id="nav_tab">
+      <div class="nav_tab" id="nav_tab">
           <i class="fas fa-play-circle fa-3x nav-action-button nav-button-hide" onclick="play()" id="play-button"></i>
           <i class="fas fa-pause-circle fa-3x nav-action-button nav-button-hide" onclick="pause()" id="pause-button"></i>
           <i class="fas fa-chevron-circle-right fa-3x nav-action-button nav-button-hide" onclick="next_photo()" id="next-button"></i>
           <i class="fas fa-stop-circle fa-3x nav-action-button nav-button-hide" onclick="stop()" id="stop-button"></i>
           <i class="fas fa-plus-circle fa-3x nav-action-button" onclick="fullscreen()" id="fullscreen-button"></i>
         </div>
-      </div>
 		</div>
 	</div>
 </body>

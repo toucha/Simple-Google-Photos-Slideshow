@@ -7,6 +7,7 @@
   var current_flag = 0;
   var slideshow_state = 'stop';
   var hide_nav;
+  var is_transitioning = false;
 
   $(function(){
     $('#photoframe').on('click', (function(){
@@ -176,7 +177,7 @@
           console.log('items loaded from background, current size ' + loaded_media.length);
           pageToken = response.result.nextPageToken;
         }else{
-          throw 'backgroun_load of flag ' + watch_flag + ' stopped. Current flag is ' + current_flag;
+          throw 'background_load of flag ' + watch_flag + ' stopped. Current flag is ' + current_flag;
         }
       },
       function(err) { console.error("background_load error", err); })
@@ -221,13 +222,16 @@
 			$('#photoframe').fadeOut('slow').promise().done(function(){
 				$('#photoframe').html(img);
 				$('#photoframe').fadeIn('slow');
+        is_transitioning = false;
         if(slideshow_state == 'play'){
 				  current_timeout = setTimeout(start_slideshow, 20000);
+          console.log('next timeout ' + current_timeout);
         }
 				// console.log('timer started');
 			});
 		}
 		img.src = target_url;
+    console.log('complete ' + target);
   }
 
   function refresh_list(){
@@ -242,13 +246,17 @@
 
   function next_photo(){
     //prevent displaying next photo from stop
-    if(slideshow_state != 'stop'){
+    if(slideshow_state != 'stop' && !is_transitioning){
+      is_transitioning = true;
       console.log('displaying next photo');
       //kill current_timeout and re trigger start_slideshow
+      console.log(current_timeout + ' timeout cleared');
       clearTimeout(current_timeout);
-      console.log('timeout cleared');
       start_slideshow();
     }
+    // else if(is_transitioning){
+    //   console.log('the slideshow is under transition state. Ignore next photo button pressed');
+    // }
   }
 
   function play(){

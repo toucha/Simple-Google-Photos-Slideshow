@@ -10,6 +10,11 @@
   var is_transitioning = false;
 
   $(function(){
+    //bind error display to debug
+    window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+      alert("Error occured: " + errorMsg + " \nat: " + lineNumber);//or any message
+      return false;
+    }
     $('#photoframe').on('click', (function(){
       console.log('clicked');
       displayNavTab();

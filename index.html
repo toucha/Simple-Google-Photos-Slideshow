@@ -8,11 +8,13 @@
   var slideshow_state = 'stop';
   var hide_nav;
   var is_transitioning = false;
+  var error_count = 0;
+  var error_threshold = 10;
 
   $(function(){
     //bind error display to debug
     attachDebugWindow();
-    
+
     $('#photoframe').on('click', (function(){
       console.log('clicked');
       displayNavTab();
@@ -241,6 +243,17 @@
 				// console.log('timer started');
 			});
 		}
+    img.onerror = function(){
+      console.error('cannot load image from src: ' + this.src + '\nwill trigger next slideshow if state is in play\nerror count: ' + (++error_count));
+      if(slideshow_state != 'stop' && error_count <= error_threshold){
+        console.log('retrying in 3 seconds');
+        setTimeout(next_photo, 3000);
+      }else{
+        //if error count exceeds threshold stop the slideshow
+        alert('Slideshow stopped: too many error occurred (limit: ' + error_threshold + ')');
+        stop();
+      }
+    }
 		img.src = target_url;
     console.log('complete ' + target);
   }
@@ -265,9 +278,9 @@
       clearTimeout(current_timeout);
       start_slideshow();
     }
-    // else if(is_transitioning){
-    //   console.log('the slideshow is under transition state. Ignore next photo button pressed');
-    // }
+    else if(is_transitioning){
+      console.log('the slideshow is under transition state. Ignore next photo button pressed');
+    }
   }
 
   function play(){
@@ -295,6 +308,8 @@
   function stop(){
     //change state to stop
     slideshow_state = 'stop';
+    //clear error count
+    error_count = 0;
     //kill slideshow timer
     clearTimeout(current_timeout);
     //switch flag

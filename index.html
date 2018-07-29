@@ -11,10 +11,8 @@
 
   $(function(){
     //bind error display to debug
-    window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-      alert("Error occured: " + errorMsg + " \nat: " + lineNumber);//or any message
-      return false;
-    }
+    attachDebugWindow();
+    
     $('#photoframe').on('click', (function(){
       console.log('clicked');
       displayNavTab();
@@ -35,6 +33,14 @@
     // displayNavTab();
     $('#photoframe').click();
   });
+
+  function attachDebugWindow(){
+    window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+      alert("Error occured: " + errorMsg + " \nat: " + lineNumber);//or any message
+      return false;
+    }
+    alert("debug window attached");
+  }
 
   function displayNavTab(){
     clearTimeout(hide_nav);

@@ -213,7 +213,7 @@
     console.log('get_photos page : ' + page);
       return gapi.client.photoslibrary.mediaItems.search({
       "resource": {
-        "pageSize": 500,
+        "pageSize": 100,
         "pageToken": page
       }
     });
